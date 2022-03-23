@@ -16,16 +16,16 @@ app = Flask(__name__)
 query = 'elden ring -is:retweet'
 # finds recent tweets based on search query
 response = client.search_recent_tweets(query=query, tweet_fields=['created_at','lang'])
-
+# default web page
 @app.route("/")
 def index():
     return render_template("index.html")
-
+# search web page, passes twitter data to search view
 @app.route("/search")
 def search():
     data = twitterData()
     return render_template("search.html", content=data)
-
+# get twitter data, loop each tweet object, add attribute data to list, return list
 def twitterData():
     datalist = []
     for tweet in response.data:
