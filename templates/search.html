@@ -1,0 +1,25 @@
+<!--uses base template-->
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h6>Elden Ring Tweets</h6>
+<table class="table">
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Data</th>
+            <th scope="col">Language</th>
+            <th scope="col">Timestamp</th>
+        </tr>
+    {% for x in content %}
+<!--                {{x}}-->
+    <tr>
+        {% for tweet in x %}
+        <th scope="row"></th>
+        <td>{{tweet}}</td>
+<!--                <td>{{tweet.id}}</td>-->
+<!--                <td>{{tweet.id}}</td>-->
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
