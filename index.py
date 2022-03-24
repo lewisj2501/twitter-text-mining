@@ -1,5 +1,5 @@
-from flask import Flask, redirect, url_for, render_template
 # import Twitter API, access tokens and datetime for console log
+from flask import Flask, redirect, url_for, render_template, request
 import tweepy as twitter
 import keys
 import time, datetime
@@ -12,21 +12,24 @@ client = twitter.Client(bearer_token=keys.BEARER_TOKEN)
 
 app = Flask(__name__)
 
-# takes search query
-query = 'elden ring -is:retweet'
-# finds recent tweets based on search query
-response = client.search_recent_tweets(query=query, tweet_fields=['created_at','lang'])
+# takes search query, no retweets
+baseQuery = '-is:retweet'
 # default web page
 @app.route("/")
 def index():
     return render_template("index.html")
 # search web page, passes twitter data to search view
-@app.route("/search")
+@app.route('/search/', methods=['GET'])
 def search():
-    data = twitterData()
-    return render_template("search.html", content=data)
+    name = request.args.get('name')
+    data = twitterData(name)
+    return render_template("search.html", content=data, gameName=name.title())
 # get twitter data, loop each tweet object, add attribute data to list, return list
-def twitterData():
+def twitterData(game):
+    # append user input with base query
+    query = game + ' ' +baseQuery
+    # finds recent tweets based on search query, default 10 max
+    response = client.search_recent_tweets(query=query, tweet_fields=['created_at', 'lang'])
     datalist = []
     for tweet in response.data:
         sublist = []

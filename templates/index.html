@@ -4,4 +4,12 @@
 {% block content %}
 <h6>Home Page</h6>
 
+<form method="get" action="/search">
+  <div class="form-group">
+    <label for="inputGame">Game Title</label>
+    <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Game" required>
+    <input type="submit"></input>
+  </div>
+</form>
+
 {% endblock %}
