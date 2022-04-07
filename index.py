@@ -5,13 +5,18 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import string
 import tweepy as twitter
-import keys
 import time, datetime
 # handle authentication to use API
-auth = twitter.OAuthHandler(keys.API_KEY, keys.API_KEY_SECRET)
-auth.set_access_token(keys.ACCESS_TOKEN, keys.ACCESS_TOKEN_SECRET)
+api_key = "yqTYGsv4lv23uPp15K2sWphP5"
+api_secrets = "BNuqouJ9HnGVlSSOGnUFdPUCHrsq58AzhOy8CYnjxVQq0N7OAh"
+access_token = "1275920513303556096-M8fClL1usOrX3dCi1eeB59Z1U7GTLd"
+access_secret = "DAfZaJkpugsKyGorBUHiBH7UA9S82BbY87Ne3cFFQCx7L"
+b_token = "AAAAAAAAAAAAAAAAAAAAAE9NYgEAAAAAa0W6lFHVqMB8CFFaqanE4vdem%2BY%3DPtApAJspp4nwB0VuqIkNN1vBHZmxudcDk37XDvHIPfzdYs3YVM"
+
+auth = twitter.OAuthHandler(api_key, api_secrets)
+auth.set_access_token(access_token, access_secret)
 api = twitter.API(auth)
-client = twitter.Client(bearer_token=keys.BEARER_TOKEN)
+client = twitter.Client(bearer_token=b_token)
 # takes a hashtag parameter(which tweets are to be retweeted, and a delay in seconds until it executes again)
 
 app = Flask(__name__)
@@ -33,12 +38,13 @@ def twitterData(game):
     # append user input with base query
     query = game + ' ' +baseQuery
     # finds recent tweets based on search query, default 10 max
-    response = client.search_recent_tweets(query=query,tweet_fields=['created_at', 'lang'],max_results=100)
+    response = client.search_recent_tweets(query=query,tweet_fields=['created_at', 'lang','context_annotations','entities'],max_results=100)
     # datalist holds a list containing lists of tweet objects
     datalist = []
     for tweet in response.data:
         # filters for tweets in engilsh
         if tweet.lang == "en":
+            print(tweet.context_annotations)
             # each tweet object is added to this list
             sublist = []
             # after tokenising the tweet text, add the words (tokens) to this list

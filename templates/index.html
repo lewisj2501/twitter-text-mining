@@ -6,8 +6,14 @@
 
 <form method="get" action="/search">
   <div class="form-group">
-    <label for="inputGame">Game Title</label>
-    <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Game" required>
+    <label for="inputGame">Media Type</label>
+    <input list="genre" name="media">
+      <datalist id="genre">
+        <option value="Game">
+        <option value="Film">
+        <option value="TV Show">
+      </datalist>
+    <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Title" required>
     <input type="submit"></input>
   </div>
 </form>
