@@ -5,18 +5,13 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import string
 import tweepy as twitter
+import keys
 import time, datetime
 # handle authentication to use API
-api_key = "yqTYGsv4lv23uPp15K2sWphP5"
-api_secrets = "BNuqouJ9HnGVlSSOGnUFdPUCHrsq58AzhOy8CYnjxVQq0N7OAh"
-access_token = "1275920513303556096-M8fClL1usOrX3dCi1eeB59Z1U7GTLd"
-access_secret = "DAfZaJkpugsKyGorBUHiBH7UA9S82BbY87Ne3cFFQCx7L"
-b_token = "AAAAAAAAAAAAAAAAAAAAAE9NYgEAAAAAa0W6lFHVqMB8CFFaqanE4vdem%2BY%3DPtApAJspp4nwB0VuqIkNN1vBHZmxudcDk37XDvHIPfzdYs3YVM"
-
-auth = twitter.OAuthHandler(api_key, api_secrets)
-auth.set_access_token(access_token, access_secret)
+auth = twitter.OAuthHandler(keys.API_KEY, keys.API_KEY_SECRET)
+auth.set_access_token(keys.ACCESS_TOKEN, keys.ACCESS_TOKEN_SECRET)
 api = twitter.API(auth)
-client = twitter.Client(bearer_token=b_token)
+client = twitter.Client(bearer_token=keys.BEARER_TOKEN)
 # takes a hashtag parameter(which tweets are to be retweeted, and a delay in seconds until it executes again)
 
 app = Flask(__name__)
@@ -45,6 +40,7 @@ def twitterData(game):
         # filters for tweets in engilsh
         if tweet.lang == "en":
             print(tweet.context_annotations)
+            print("original tweet: "+tweet.text)
             # each tweet object is added to this list
             sublist = []
             # after tokenising the tweet text, add the words (tokens) to this list
@@ -57,16 +53,20 @@ def twitterData(game):
             tweet_text_lower = tweet_text.lower()
             # removes punctuation
             cleaned_tweet = tweet_text_lower.translate(str.maketrans('', '', string.punctuation))
+            print("no punctuation: "+cleaned_tweet)
             # nltk function that tokenises tweet text (breaks into words)
             tokenised_tweet = word_tokenize(cleaned_tweet,"english")
+            print(tokenised_tweet)
             # removes english stop words (e.g. I, so, a, our, etc. ) and appends to finalTweet list
             for token in tokenised_tweet:
                 if token not in stopwords.words('english'):
                     finalTweet.append(token)
             # converts finalTweet list (all the valuble words in the tweet) back to a string
             cleaned_tokenised_tweet = ' '.join(map(str,finalTweet))
+            print("reconstructed tweet with no stop words: "+cleaned_tokenised_tweet)
             # uses nltk function to get polarity score (is the tweet neg, neu, or pos)
             tweet_polarity_score = SentimentIntensityAnalyzer().polarity_scores(cleaned_tokenised_tweet)
+            print(tweet_polarity_score)
             # get dict neg value
             neg = tweet_polarity_score['neg']
             # get dict pos value
