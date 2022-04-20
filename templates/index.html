@@ -3,21 +3,31 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="container">
-        <!-- Example row of columns -->
-		<div class="row">
-          <div class="col-md-12">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
             <form method="get" action="/search">
-          <div class="form-group">
-            <label for="inputGame">Game Title</label>
-            <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Game" required>
-            <input type="submit"></input>
-          </div>
+                <div class="mb-3">
+                    <label for="genre" class="form-label">Media Type:</label>
+                    <br>
+                    <select class="form-select" aria-label="Default select example" id="genre" name="media">
+                        <option selected>Select Media Type...</option>
+                        <option value="71">Game</option>
+                        <option value="86">Film</option>
+                        <option value="3">TV Show</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="inputGame" class="form-label">Title:</label>
+                    <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Title">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-          </div>
         </div>
+    </div>
 
-        <hr>
+    <hr>
 
-      </div> <!-- /container -->
+</div> <!-- /container -->
 
 {% endblock %}
