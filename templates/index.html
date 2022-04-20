@@ -2,14 +2,22 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h6>Home Page</h6>
+<div class="container">
+        <!-- Example row of columns -->
+		<div class="row">
+          <div class="col-md-12">
+            <form method="get" action="/search">
+          <div class="form-group">
+            <label for="inputGame">Game Title</label>
+            <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Game" required>
+            <input type="submit"></input>
+          </div>
+            </form>
+          </div>
+        </div>
 
-<form method="get" action="/search">
-  <div class="form-group">
-    <label for="inputGame">Game Title</label>
-    <input type="text" name="name" class="form-control" id="inputGame" placeholder="Enter Game" required>
-    <input type="submit"></input>
-  </div>
-</form>
+        <hr>
+
+      </div> <!-- /container -->
 
 {% endblock %}
