@@ -2,22 +2,33 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h6>{{gameName}} Tweets</h6>
-<table class="table">
-        <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Data</th>
-            <th scope="col">Language</th>
-            <th scope="col">Timestamp</th>
-            <th scope="col">Sentiment</th>
-        </tr>
-    {% for x in content %}
-    <tr>
-        {% for tweet in x %}
-        <th scope="row"></th>
-        <td>{{tweet}}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
-{% endblock %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h6>{{gameName}} Tweets</h6>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Timestamp</th>
+                    <th scope="col">Sentiment</th>
+                </tr>
+                </thead>
+                {% for x in content %}
+                <tbody>
+                <tr>
+                    {% for tweet in x %}
+                    <th scope="row"></th>
+                    <td>{{tweet}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endblock %}
+        </div>
+
+    </div>
+</div> <!-- /container -->
