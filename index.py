@@ -33,13 +33,19 @@ def search():
     name = request.args.get('name')
     genre = request.args.get('media')
     data = twitterData(name, genre)
-    return render_template("search.html", content=data, gameName=name.title())
+    return render_template("search.html", content=data[0], name=name.title(), mediaType=data[1], score=data[2],
+                           sentiment=data[3])
 
 
 # get twitter data, loop each tweet object, add attribute data to list, return list
 def twitterData(title, genre):
     # append user input with base query
     query = title + ' ' + baseQuery
+    overall_twitter_critic_score = 0
+    overall_twitter_critic_sentiment = ""
+    pos_twitter_critic_score = []
+    neg_twitter_critic_score = []
+    neu_twitter_critic_score = []
     # finds recent tweets based on search query, default 10 max
     # response = client.search_recent_tweets(query=query,tweet_fields=['created_at', 'lang'],max_results=100)
     response = client.search_recent_tweets(query=query,
@@ -75,9 +81,10 @@ def twitterData(title, genre):
             cleaned_tweet = tweet_text_lower.translate(str.maketrans('', '', string.punctuation))
             # nltk function that tokenises tweet text (breaks into words)
             tokenised_tweet = word_tokenize(cleaned_tweet, "english")
-            # removes english stop words (e.g. I, so, a, our, etc. ) and appends to finalTweet list
+            # removes english stop words (e.g. I, so, a, our, etc. ), removes title and appends to finalTweet list
+            # the title is removed to avoid confilct with the analyser (e.g. breaking bad is very negative)
             for token in tokenised_tweet:
-                if token not in stopwords.words('english'):
+                if token not in stopwords.words('english') and token not in title.lower():
                     finalTweet.append(token)
             # converts finalTweet list (all the valuble words in the tweet) back to a string
             cleaned_tokenised_tweet = ' '.join(map(str, finalTweet))
@@ -91,6 +98,7 @@ def twitterData(title, genre):
             # else its neutral
             if neg > pos:
                 sentiment_score = round(neg * 100)
+                neg_twitter_critic_score.append(sentiment_score)
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Negative Tweet"
                 elif 60 > sentiment_score > 40:
@@ -101,6 +109,7 @@ def twitterData(title, genre):
                     tweet_polarity = "Mildly Negative Tweet"
             elif pos > neg:
                 sentiment_score = round(pos * 100)
+                pos_twitter_critic_score.append(sentiment_score)
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Positive Tweet"
                 elif 60 > sentiment_score > 40:
@@ -112,6 +121,7 @@ def twitterData(title, genre):
             else:
                 tweet_polarity = "Neutral Tweet"
                 sentiment_score = 0
+                neu_twitter_critic_score.append(sentiment_score)
             # add tweet object properties to list that will be displayed on web page
             sublist.append(tweet.text)
             sublist.append(tweet.lang)
@@ -123,7 +133,50 @@ def twitterData(title, genre):
             # dont do anything if not english
             print("/n")
 
-    return datalist
+    if len(neg_twitter_critic_score) > len(pos_twitter_critic_score):
+        avg_score = sum(neg_twitter_critic_score) / len(neg_twitter_critic_score)
+        overall_twitter_critic_score = round(avg_score)
+        if avg_score > 60:
+            overall_twitter_critic_sentiment = "Extremely Negative"
+        elif 60 > avg_score > 40:
+            overall_twitter_critic_sentiment = "Very Negative"
+        elif 40 > avg_score > 20:
+            overall_twitter_critic_sentiment = "Fairly Negative"
+        else:
+            overall_twitter_critic_sentiment = "Mildly Negative"
+        print("Negative Feeling")
+    elif len(pos_twitter_critic_score) > len(neg_twitter_critic_score):
+        avg_score = sum(pos_twitter_critic_score) / len(pos_twitter_critic_score)
+        overall_twitter_critic_score = round(avg_score)
+        if avg_score > 60:
+            overall_twitter_critic_sentiment = "Extremely Positive"
+        elif 60 > avg_score > 40:
+            overall_twitter_critic_sentiment = "Very Positive"
+        elif 40 > avg_score > 20:
+            overall_twitter_critic_sentiment = "Fairly Positive"
+        else:
+            overall_twitter_critic_sentiment = "Mildly Positive"
+        print("Positive Feeling")
+    else:
+        overall_twitter_critic_score = 0
+        overall_twitter_critic_sentiment = "Neutral"
+        print("Neutral Feeling")
+
+    print(overall_twitter_critic_sentiment)
+    print(overall_twitter_critic_score)
+
+    media_type = ""
+    print(genre)
+    if int(genre) == 71:
+        media_type = "Video Game"
+    elif int(genre) == 86:
+        media_type = "Film"
+    elif int(genre) == 3:
+        media_type = "TV Show"
+    else:
+        media_type = "No results were found. Perhaps the topic you are looking for is in another category."
+
+    return datalist, media_type, overall_twitter_critic_score, overall_twitter_critic_sentiment,
 
 
 # runs website, runs it in debug mode (don't have to refresh page each time)
