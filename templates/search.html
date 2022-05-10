@@ -3,13 +3,53 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="container">
+    <ul class="list-inline">
+        <li class="list-inline-item"><h1>{{name}} <small>({{mediaType}})</small></h1></li>
+        <li class="list-inline-item"><h1>Score: <small>{{score}}</small></h1></li>
+        <li class="list-inline-item"><h1>Perception: <small>{{sentiment}}</small></h1></li>
+    </ul>
     <div class="row">
         <div class="col-md-12">
-            <ul class="list-inline">
-                <li class="list-inline-item"><h1>{{name}} <small>({{mediaType}})</small></h1></li>
-                <li class="list-inline-item"><h1>Score: <small>{{score}}</small></h1></li>
-                <li class="list-inline-item"><h1>Perception: <small>{{sentiment}}</small></h1></li>
-            </ul>
+            <h1>Most Postive Tweets:</h1>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                </tr>
+                </thead>
+                {% for x in posTweets %}
+                <tbody>
+                <tr>
+                    <th scope="row"></th>
+                    <td>{{x}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Most Negative Tweets:</h1>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                </tr>
+                </thead>
+                {% for y in negTweets %}
+                <tbody>
+                <tr>
+                    <th scope="row"></th>
+                    <td>{{y}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="row">
+        <h1>Most Recent Tweets</h1>
+        <div class="col-md-12">
             <table class="table table-hover">
                 <thead>
                 <tr>
@@ -19,10 +59,10 @@
                     <th scope="col">Sentiment</th>
                 </tr>
                 </thead>
-                {% for x in content %}
+                {% for z in content %}
                 <tbody>
                 <tr>
-                    {% for tweet in x %}
+                    {% for tweet in z %}
                     <th scope="row"></th>
                     <td>{{tweet}}</td>
                     {% endfor %}
