@@ -34,7 +34,7 @@ def search():
     genre = request.args.get('media')
     data = twitterData(name, genre)
     return render_template("search.html", content=data[0], name=name.title(), mediaType=data[1], score=data[2],
-                           sentiment=data[3])
+                           sentiment=data[3], posTweets=data[4], negTweets=data[5])
 
 
 # get twitter data, loop each tweet object, add attribute data to list, return list
@@ -53,21 +53,15 @@ def twitterData(title, genre):
                                            max_results=100)
     # datalist holds a list containing lists of tweet objects
     datalist = []
+    neg_tweets = []
+    pos_tweets = []
     for tweet in response.data:
-        tweet_context = tweet.context_annotations
-        tweet_context_match = False
-        for index in range(len(tweet_context)):
-            for key in tweet_context[index]:
-                new_dict = tweet_context[index][key]
-                if genre in new_dict.values():
-                    tweet_context_match = True
-                    print("genre match")
-                else:
-                    print("genre doesn't match")
         # filters for tweets in engilsh
-        if tweet.lang == "en" and tweet_context_match == True:
+        if tweet.lang == "en" and contextMatch(tweet, genre) == True:
             # each tweet object is added to this list
             sublist = []
+            posTweets = []
+            negTweets = []
             # after tokenising the tweet text, add the words (tokens) to this list
             finalTweet = []
             sentiment_score = 0
@@ -75,19 +69,7 @@ def twitterData(title, genre):
             tweet_polarity = ""
             # cleansing process of the text
             tweet_text = tweet.text
-            # converts tweet text to all lowercase
-            tweet_text_lower = tweet_text.lower()
-            # removes punctuation
-            cleaned_tweet = tweet_text_lower.translate(str.maketrans('', '', string.punctuation))
-            # nltk function that tokenises tweet text (breaks into words)
-            tokenised_tweet = word_tokenize(cleaned_tweet, "english")
-            # removes english stop words (e.g. I, so, a, our, etc. ), removes title and appends to finalTweet list
-            # the title is removed to avoid confilct with the analyser (e.g. breaking bad is very negative)
-            for token in tokenised_tweet:
-                if token not in stopwords.words('english') and token not in title.lower():
-                    finalTweet.append(token)
-            # converts finalTweet list (all the valuble words in the tweet) back to a string
-            cleaned_tokenised_tweet = ' '.join(map(str, finalTweet))
+            cleaned_tokenised_tweet = tweetTokenise(tweet_text,finalTweet,title)
             # uses nltk function to get polarity score (is the tweet neg, neu, or pos)
             tweet_polarity_score = SentimentIntensityAnalyzer().polarity_scores(cleaned_tokenised_tweet)
             # get dict neg value
@@ -101,8 +83,10 @@ def twitterData(title, genre):
                 neg_twitter_critic_score.append(sentiment_score)
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Negative Tweet"
+                    neg_tweets.append(tweet.text)
                 elif 60 > sentiment_score > 40:
                     tweet_polarity = "Very Negative Tweet"
+                    neg_tweets.append(tweet.text)
                 elif 40 > sentiment_score > 20:
                     tweet_polarity = "Fairly Negative Tweet"
                 else:
@@ -112,8 +96,10 @@ def twitterData(title, genre):
                 pos_twitter_critic_score.append(sentiment_score)
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Positive Tweet"
+                    pos_tweets.append(tweet_text)
                 elif 60 > sentiment_score > 40:
                     tweet_polarity = "Very Positive Tweet"
+                    pos_tweets.append(tweet_text)
                 elif 40 > sentiment_score > 20:
                     tweet_polarity = "Fairly Positive Tweet"
                 else:
@@ -129,6 +115,8 @@ def twitterData(title, genre):
             sublist.append(tweet_polarity)
             # add list of tweet object to the list of other tweet objects
             datalist.append(sublist)
+            negTweets.append(neg_tweets)
+            posTweets.append(pos_tweets)
         else:
             # dont do anything if not english
             print("/n")
@@ -175,9 +163,42 @@ def twitterData(title, genre):
         media_type = "TV Show"
     else:
         media_type = "No results were found. Perhaps the topic you are looking for is in another category."
+    print(datalist)
+    print(pos_tweets)
+    print(neg_tweets)
 
-    return datalist, media_type, overall_twitter_critic_score, overall_twitter_critic_sentiment,
+    return datalist, media_type, overall_twitter_critic_score, overall_twitter_critic_sentiment, pos_tweets, neg_tweets,
 
+def contextMatch(tweet, genre):
+    tweet_context = tweet.context_annotations
+    tweet_context_match = False
+    for index in range(len(tweet_context)):
+        for key in tweet_context[index]:
+            new_dict = tweet_context[index][key]
+            if genre in new_dict.values():
+                tweet_context_match = True
+                print("genre match")
+            else:
+                print("genre doesn't match")
+
+    return tweet_context_match
+
+def tweetTokenise(tweet_text,finalTweet,title):
+    # converts tweet text to all lowercase
+    tweet_text_lower = tweet_text.lower()
+    # removes punctuation
+    cleaned_tweet = tweet_text_lower.translate(str.maketrans('', '', string.punctuation))
+    # nltk function that tokenises tweet text (breaks into words)
+    tokenised_tweet = word_tokenize(cleaned_tweet, "english")
+    # removes english stop words (e.g. I, so, a, our, etc. ), removes title and appends to finalTweet list
+    # the title is removed to avoid confilct with the analyser (e.g. breaking bad is very negative)
+    for token in tokenised_tweet:
+        if token not in stopwords.words('english') and token not in title.lower():
+            finalTweet.append(token)
+    # converts finalTweet list (all the valuble words in the tweet) back to a string
+    cleaned_tokenised_tweet = ' '.join(map(str, finalTweet))
+
+    return cleaned_tokenised_tweet
 
 # runs website, runs it in debug mode (don't have to refresh page each time)
 if __name__ == "__main__":
