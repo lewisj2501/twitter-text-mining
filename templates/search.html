@@ -47,6 +47,68 @@
         </div>
 
     </div>
+    <h1>Graphs:</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+            <script>
+            var barColors = [
+              "#1e7145",
+              "#FF0000",
+              "#808080"
+            ];
+            var pieChart = new Chart("myChart", {
+                type: "pie",
+                 data: {
+                   labels: {{ overallLabels | safe}},
+                   datasets: [{
+                     backgroundColor: barColors,
+                     data: {{ overallValues | safe}}
+                   }]
+                 },
+                 options: {
+                   title: {
+                     display: true,
+                     text: "Overall Sentiment"
+                   }
+                 }
+               });
+            </script>
+        </div>
+        <div class="col-md-6">
+            <canvas id="myChart2" style="width:100%;max-width:600px"></canvas>
+               <script>
+            var barColors = [
+              "#1e7145",
+              "#2BA765",
+              "#35CE7D",
+              "#1BEF7F",
+              "#FF0000",
+              "#C52A2A",
+              "#A54545",
+              "#8E4B4B",
+              "#808080"
+            ];
+            var pieChart = new Chart("myChart2", {
+                type: "pie",
+                 data: {
+                   labels: {{ detailedLabels | safe}},
+                   datasets: [{
+                     backgroundColor: barColors,
+                     data: {{ detailedValues | safe}}
+                   }]
+                 },
+                 options: {
+                   title: {
+                     display: true,
+                     text: "Detailed Sentiment"
+                   }
+                 }
+               });
+            </script>
+        </div>
+
+    </div>
     <div class="row">
         <h1>Most Recent Tweets</h1>
         <div class="col-md-12">
@@ -74,4 +136,5 @@
         </div>
 
     </div>
+
 </div> <!-- /container -->

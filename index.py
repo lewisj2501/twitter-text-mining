@@ -33,8 +33,26 @@ def search():
     name = request.args.get('name')
     genre = request.args.get('media')
     data = twitterData(name, genre)
+    overall_sentiment_array = []
+    detailed_sentiment_array = []
+
+    for x, y in data[6].items():
+        tuple = x, y
+        overall_sentiment_array.append(tuple)
+
+    overallLabels = [row[0] for row in overall_sentiment_array]
+    overallValues = [row[1] for row in overall_sentiment_array]
+
+    for x, y in data[7].items():
+        tuple = x, y
+        detailed_sentiment_array.append(tuple)
+
+    detailedlLabels = [row[0] for row in detailed_sentiment_array]
+    detailedValues = [row[1] for row in detailed_sentiment_array]
+
     return render_template("search.html", content=data[0], name=name.title(), mediaType=data[1], score=data[2],
-                           sentiment=data[3], posTweets=data[4], negTweets=data[5])
+                           sentiment=data[3], posTweets=data[4], negTweets=data[5],overallLabels=overallLabels,
+                           overallValues=overallValues, detailedLabels=detailedlLabels, detailedValues=detailedValues)
 
 
 # get twitter data, loop each tweet object, add attribute data to list, return list
@@ -47,7 +65,6 @@ def twitterData(title, genre):
     neg_twitter_critic_score = []
     neu_twitter_critic_score = []
     # finds recent tweets based on search query, default 10 max
-    # response = client.search_recent_tweets(query=query,tweet_fields=['created_at', 'lang'],max_results=100)
     response = client.search_recent_tweets(query=query,
                                            tweet_fields=['created_at', 'lang', 'context_annotations', 'entities'],
                                            max_results=100)
@@ -55,6 +72,23 @@ def twitterData(title, genre):
     datalist = []
     neg_tweets = []
     pos_tweets = []
+    sentiment_dict = {
+        "Positive": 0,
+        "Negative": 0,
+        "Neutral": 0
+    }
+
+    detailed_sentiment_dict = {
+        "Extremely Positive": 0,
+        "Very Positive": 0,
+        "Fairly Positive": 0,
+        "Mildly Positive": 0,
+        "Extremely Negative": 0,
+        "Very Negative": 0,
+        "Fairly Negative": 0,
+        "Mildly Negative": 0,
+        "Neutral": 0
+    }
     for tweet in response.data:
         # filters for tweets in engilsh
         if tweet.lang == "en" and contextMatch(tweet, genre) == True:
@@ -81,32 +115,56 @@ def twitterData(title, genre):
             if neg > pos:
                 sentiment_score = round(neg * 100)
                 neg_twitter_critic_score.append(sentiment_score)
+                x = sentiment_dict.get("Negative") + 1
+                sentiment_dict.update({"Negative": x})
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Negative Tweet"
                     neg_tweets.append(tweet.text)
+                    x = detailed_sentiment_dict.get("Extremely Negative") + 1
+                    detailed_sentiment_dict.update({"Extremely Negative": x})
                 elif 60 > sentiment_score > 40:
                     tweet_polarity = "Very Negative Tweet"
                     neg_tweets.append(tweet.text)
+                    x = detailed_sentiment_dict.get("Very Negative") + 1
+                    detailed_sentiment_dict.update({"Very Negative": x})
                 elif 40 > sentiment_score > 20:
                     tweet_polarity = "Fairly Negative Tweet"
+                    x = detailed_sentiment_dict.get("Fairly Negative") + 1
+                    detailed_sentiment_dict.update({"Fairly Negative": x})
                 else:
                     tweet_polarity = "Mildly Negative Tweet"
+                    x = detailed_sentiment_dict.get("Mildly Negative") + 1
+                    detailed_sentiment_dict.update({"Mildly Negative": x})
             elif pos > neg:
+                x = sentiment_dict.get("Positive") + 1
+                sentiment_dict.update({"Positive": x})
                 sentiment_score = round(pos * 100)
                 pos_twitter_critic_score.append(sentiment_score)
                 if sentiment_score > 60:
                     tweet_polarity = "Extremely Positive Tweet"
                     pos_tweets.append(tweet_text)
+                    x = detailed_sentiment_dict.get("Extremely Positive") + 1
+                    detailed_sentiment_dict.update({"Extremely Positive": x})
                 elif 60 > sentiment_score > 40:
                     tweet_polarity = "Very Positive Tweet"
                     pos_tweets.append(tweet_text)
+                    x = detailed_sentiment_dict.get("Very Positive") + 1
+                    detailed_sentiment_dict.update({"Very Positive": x})
                 elif 40 > sentiment_score > 20:
                     tweet_polarity = "Fairly Positive Tweet"
+                    x = detailed_sentiment_dict.get("Fairly Positive") + 1
+                    detailed_sentiment_dict.update({"Fairly Positive": x})
                 else:
                     tweet_polarity = "Mildly Positive Tweet"
+                    x = detailed_sentiment_dict.get("Mildly Positive") + 1
+                    detailed_sentiment_dict.update({"Mildly Positive": x})
             else:
                 tweet_polarity = "Neutral Tweet"
                 sentiment_score = 0
+                x = sentiment_dict.get("Neutral") + 1
+                sentiment_dict.update({"Neutral": x})
+                x = detailed_sentiment_dict.get("Neutral") + 1
+                detailed_sentiment_dict.update({"Neutral": x})
                 neu_twitter_critic_score.append(sentiment_score)
             # add tweet object properties to list that will be displayed on web page
             sublist.append(tweet.text)
@@ -150,9 +208,6 @@ def twitterData(title, genre):
         overall_twitter_critic_sentiment = "Neutral"
         print("Neutral Feeling")
 
-    print(overall_twitter_critic_sentiment)
-    print(overall_twitter_critic_score)
-
     media_type = ""
     print(genre)
     if int(genre) == 71:
@@ -161,13 +216,12 @@ def twitterData(title, genre):
         media_type = "Film"
     elif int(genre) == 3:
         media_type = "TV Show"
+    elif int(genre) == 0:
+        media_type = "No results were found. Perhaps the topic you are looking for is in another category."
     else:
         media_type = "No results were found. Perhaps the topic you are looking for is in another category."
-    print(datalist)
-    print(pos_tweets)
-    print(neg_tweets)
 
-    return datalist, media_type, overall_twitter_critic_score, overall_twitter_critic_sentiment, pos_tweets, neg_tweets,
+    return datalist, media_type, overall_twitter_critic_score, overall_twitter_critic_sentiment, pos_tweets, neg_tweets, sentiment_dict, detailed_sentiment_dict
 
 def contextMatch(tweet, genre):
     tweet_context = tweet.context_annotations
