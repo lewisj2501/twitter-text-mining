@@ -1,0 +1,51 @@
+<!--uses base template-->
+{% extends "base.html" %}
+{% block title %}TwitterCritic - What's loved and hated the most?{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Example row of columns -->
+    <h1>About Us</h1>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Introduction</h3>
+            <p>Hi my name is Lewis and this is TwitterCritic! This is my final year project for my undergraduate degree
+            where I use Twitter's API to gather tweets and perform what is known as sentiment analysis. Sentiment
+            analysis is basically determining whether text is deemed positive, negative or, on rare occasions, neutral.
+            All tweets are gathered with Twitter's permission and none of the information is stored locally.</p>
+        </div>
+    </div>
+     <div class="row">
+        <div class="col-md-12">
+            <h3>Q&A</h3>
+
+            <h6>How do you have access to these tweets?</h6>
+            <p>Twitter Developer accounts are free to access. Anyone can make a website based of Twitter data. The only
+            limiting factor is the different levels of access to Twitter's API. Academics have access to the entire
+            library of tweets (that's right, every single tweet sent since 2006!!!) whereas everyone else (including myself)
+            can only look at the last 7 days worth of data.</p>
+
+            <h6>How does it really work?</h6>
+            <p>It works,without being too technical, by sending a request to Twitter's servers with the query the
+            user types, it then finds tweets that mention what the user typed, my program then analyses the data and
+            determines its sentiment (positive, negative or, neutral) and finally, the results are produced back to the
+            user.</p>
+
+            <h6>Why TwitterCritic? How about FacebookCritic or InstagramCritic?</h6>
+            <p>Personally, I have only ever used Twitter out of the aforementioned platforms. Also, Twitter is widely
+            regarded as a place of division. Everything from current world events, new video games, and marvel films
+            can all have bitter and vitriolic reactions. So, finding what is regarded as positive or negative on Twitter,
+            of all places, will really test the capability of a sentiment analyser.</p>
+
+            <h6>Is there any need to sign up for the service?</h6>
+            <p>There is absolutely no reason for any user data to be stored. This site works by using Twitter's API for
+            data needed to produce results. And since access to Twitter is widely available to everyone, the data
+            that is represented to users could be replicated by anyone willing to get stuck into the Twitter Developer
+            Docs.</p>
+        </div>
+    </div>
+
+    <hr>
+
+</div> <!-- /container -->
+
+{% endblock %}
